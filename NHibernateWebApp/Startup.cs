@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +28,8 @@ namespace NHibernateWebApp
         {
             services.AddSingleton<NHibernateConfiguration>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddMediatR(Assembly.GetExecutingAssembly());
 
             services.AddMvc();
         }

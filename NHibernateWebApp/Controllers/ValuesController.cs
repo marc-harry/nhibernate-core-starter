@@ -1,59 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NHibernateWebApp.Database;
 using NHibernateWebApp.DataContracts;
-using NHibernateWebApp.Models;
+using NHibernateWebApp.Handlers.Commands;
+using NHibernateWebApp.Handlers.Queries;
 
 namespace NHibernateWebApp.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public ValuesController(IUnitOfWork unitOfWork)
+        public ValuesController(IMediator mediator)
         {
-            _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<string>> Get()
         {
-            var persons = _unitOfWork.Session.Query<Person>().ToList();
-
-            return persons.Select(p => p.Name);
+            var people = await _mediator.Send(new GetAllPeople());
+            return people.Select(p => p.Name);
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(long id)
+        public async Task<string> Get(long id)
         {
-            var person = _unitOfWork.Session.Get<Person>(id);
+            var person = await _mediator.Send(new GetPersonById { Id = id });
             return person?.Name;
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]AddPerson addPerson)
+        public async Task Post([FromBody]AddNewPerson addPerson)
         {
-            var person = new Person { Name = addPerson.Name };
-
-            if (!string.IsNullOrWhiteSpace(addPerson.AddressLine1)
-                && !string.IsNullOrWhiteSpace(addPerson.Postcode))
-            {
-                person.Address = new Address
-                {
-                    AddressLineOne = addPerson.AddressLine1,
-                    AddressLineTwo = addPerson.AddressLine2,
-                    City = addPerson.City,
-                    Postcode = addPerson.Postcode
-                };
-            }
-
-            _unitOfWork.Session.Save(person);
+            await _mediator.Send(addPerson);
         }
 
         // PUT api/values/5
