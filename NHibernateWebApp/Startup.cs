@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NHibernateWebApp.Database;
+using NHibernateWebApp.Services;
 
 namespace NHibernateWebApp
 {
@@ -28,6 +29,8 @@ namespace NHibernateWebApp
         {
             services.AddSingleton<NHibernateConfiguration>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<IEventStoreService, EventStoreService>();
 
             services.AddMediatR(Assembly.GetExecutingAssembly());
 
